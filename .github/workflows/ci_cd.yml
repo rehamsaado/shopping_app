@@ -1,7 +1,5 @@
 name: Flutter CI/CD
-analyzer:
-  errors:
-    deprecated_member_use: ignore
+
 on:
   push:
     branches: [ "main", "master" ]
