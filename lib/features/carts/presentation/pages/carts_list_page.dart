@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shopping_app/core/constants/user_session.dart';
 import 'package:shopping_app/core/localization/app_strings.dart';
 
 import '../bloc/carts_list/carts_list_bloc.dart';
@@ -11,11 +12,22 @@ import '../widgets/empty_state_widget.dart';
 import 'cart_details_page.dart';
 
 class CartsListPage extends StatelessWidget {
-  const CartsListPage({super.key});
+  final String? userId;
+  final UserSession userSession;
+
+  const CartsListPage({
+    super.key,
+    this.userId,
+    required this.userSession,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final effectiveUserId = (userId != null && userId!.isNotEmpty)
+        ? userId!
+        : (userSession.getUserId() ?? '');
 
     return Scaffold(
       appBar: AppBar(
@@ -51,7 +63,9 @@ class CartsListPage extends StatelessWidget {
               return RefreshIndicator(
                 color: theme.colorScheme.primary,
                 onRefresh: () async {
-                  context.read<CartsListBloc>().add(const LoadCartsListEvent());
+                  context.read<CartsListBloc>().add(
+                    LoadCartsListEvent(userId: int.tryParse(effectiveUserId)),
+                  );
                 },
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 12),

@@ -5,7 +5,9 @@ import 'package:shopping_app/core/widgets/settings_actions.dart';
 import '../../../../core/router/app_router.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  final String userId;
+
+  const AppDrawer({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -17,16 +19,12 @@ class AppDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // رأس الـ Drawer بتصميم تدرج لوني فخم وبارز جداً
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.primaryContainer,
-                  ],
+                  colors: [colorScheme.primary, colorScheme.primaryContainer],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -60,27 +58,14 @@ class AppDrawer extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'John Doe',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onPrimary,
-                    ),
-                  ),
+
                   const SizedBox(height: 4),
-                  Text(
-                    'john.doe@gmail.com',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onPrimary.withValues(alpha: 0.85),
-                    ),
-                  ),
                 ],
               ),
             ),
 
             const SizedBox(height: 16),
 
-            // القائمة بتصميم أنيق ومتباعد
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -90,7 +75,7 @@ class AppDrawer extends StatelessWidget {
                     title: context.tr('profile'),
                     onTap: () {
                       Navigator.pop(context);
-                      context.push('${AppRoutes.profile}/1');
+                      context.push('${AppRoutes.profile}/$userId');
                     },
                   ),
                   const SizedBox(height: 8),
@@ -106,12 +91,13 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
 
-
             Container(
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.5,
+                ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: colorScheme.outline.withValues(alpha: 0.2),
@@ -180,11 +166,7 @@ class _DrawerItem extends StatelessWidget {
                   color: colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  icon,
-                  color: colorScheme.primary,
-                  size: 20,
-                ),
+                child: Icon(icon, color: colorScheme.primary, size: 20),
               ),
               const SizedBox(width: 16),
               Expanded(

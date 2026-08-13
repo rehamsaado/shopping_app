@@ -4,6 +4,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../features/carts/data/datasources/cart_remote_data_source.dart';
 import '../../features/carts/domain/usecases/create_cart_usecase.dart';
 import '../../features/carts/domain/usecases/delete_cart_usecase.dart';
+import '../constants/user_session.dart';
 import '../network/api_interceptors.dart';
 import '../network/api_service.dart';
 import '../local/app_preferences.dart';
@@ -82,6 +83,7 @@ Future<void> setupLocator() async {
   );
 
   sl.registerLazySingleton<ApiService>(() => ApiService(sl<ApiInterceptor>()));
+  sl.registerLazySingleton(() => UserSession(sl()));
 
   // =========================================================================
   //                    2. Splash Feature
@@ -108,7 +110,7 @@ Future<void> setupLocator() async {
   //                        3. Auth Feature
   // =========================================================================
   sl.registerFactory<AuthBloc>(
-    () => AuthBloc(authRepository: sl<AuthRepository>()),
+    () => AuthBloc(authRepository: sl<AuthRepository>(), userSession: sl()),
   );
 
   sl.registerLazySingleton<LoginUseCase>(

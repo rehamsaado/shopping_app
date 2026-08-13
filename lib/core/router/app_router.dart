@@ -1,10 +1,9 @@
-// lib/core/router/app_router.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shopping_app/features/auth/presentation/pages/login_page.dart';
 import 'package:shopping_app/features/carts/presentation/pages/carts_list_page.dart';
+import 'package:shopping_app/core/constants/user_session.dart';
 
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/carts/presentation/pages/cart_details_page.dart';
@@ -26,7 +25,7 @@ abstract class AppRoutes {
   static const products = '/products';
   static const productDetails = 'details';
   static const cart = '/cart';
-  static const cartDetails = 'details'; // مسار فرعي داخل السلة
+  static const cartDetails = 'details';
   static const profile = '/profile';
 }
 
@@ -35,6 +34,23 @@ abstract class AppRouter {
 
   static final GoRouter router = GoRouter(
     initialLocation: AppRoutes.splash,
+    redirect: (context, state) {
+      final userSession = sl<UserSession>();
+      const publicRoutes = [AppRoutes.splash, AppRoutes.onboarding, AppRoutes.login, AppRoutes.register];
+
+      final isAuthRoute = publicRoutes.contains(state.matchedLocation);
+      final currentUserId = userSession.getUserId();
+
+      if (currentUserId == null && !isAuthRoute) {
+        return AppRoutes.login;
+      }
+
+      if (currentUserId != null && isAuthRoute) {
+        return AppRoutes.products;
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.splash,
@@ -61,15 +77,26 @@ abstract class AppRouter {
         pageBuilder: (context, state) =>
             _fadeSlidePage(const RegisterPage(), key: state.pageKey),
       ),
+      // صفحة المنتجات عامة لجميع المستخدمين
       GoRoute(
         path: AppRoutes.products,
-        pageBuilder: (context, state) =>
-            _fadeSlidePage(const ProductsPage(), key: state.pageKey),
+        pageBuilder: (context, state) {
+          return _fadeSlidePage(
+            const ProductsPage(),
+            key: state.pageKey,
+          );
+        },
         routes: [
           GoRoute(
             path: AppRoutes.productDetails,
             pageBuilder: (context, state) {
-              final productId = state.extra as int? ?? 1;
+              final productId = state.extra as int?;
+              if (productId == null) {
+                return _fadeSlidePage(
+                  const Scaffold(body: Center(child: Text('Invalid Product ID'))),
+                  key: state.pageKey,
+                );
+              }
               return _fadeSlidePage(
                 ProductDetailsPage(productId: productId),
                 key: state.pageKey,
@@ -78,16 +105,26 @@ abstract class AppRouter {
           ),
         ],
       ),
-      // مسارات السلال (Carts Routes)
+      // صفحة السلة المرتبطة بالمستخدم الحالي
       GoRoute(
         path: AppRoutes.cart,
-        pageBuilder: (context, state) =>
-            _fadeSlidePage(const CartsListPage(), key: state.pageKey),
+        pageBuilder: (context, state) {
+          return _fadeSlidePage(
+            CartsListPage(userSession: sl<UserSession>(),),
+            key: state.pageKey,
+          );
+        },
         routes: [
           GoRoute(
             path: AppRoutes.cartDetails,
             pageBuilder: (context, state) {
-              final cartId = state.extra as int? ?? 1;
+              final cartId = state.extra as int?;
+              if (cartId == null) {
+                return _fadeSlidePage(
+                  const Scaffold(body: Center(child: Text('Invalid Cart ID'))),
+                  key: state.pageKey,
+                );
+              }
               return _fadeSlidePage(
                 CartDetailsPage(cartId: cartId),
                 key: state.pageKey,
@@ -96,12 +133,16 @@ abstract class AppRouter {
           ),
         ],
       ),
-      // مسار الملف الشخصي (Profile Route) مع دعم الـ userId
-      // مسار الملف الشخصي (Profile Route) مع دعم الـ userId
       GoRoute(
         path: '${AppRoutes.profile}/:userId',
         pageBuilder: (context, state) {
-          final userId = state.pathParameters['userId'] ?? '1';
+          final userId = state.pathParameters['userId'];
+          if (userId == null || userId.isEmpty) {
+            return _fadeSlidePage(
+              const Scaffold(body: Center(child: Text('Invalid User ID'))),
+              key: state.pageKey,
+            );
+          }
           return _fadeSlidePage(
             ProfileScreen(userId: userId),
             key: state.pageKey,
@@ -112,9 +153,9 @@ abstract class AppRouter {
   );
 
   static CustomTransitionPage<void> _fadeSlidePage(
-    Widget child, {
-    LocalKey? key,
-  }) {
+      Widget child, {
+        LocalKey? key,
+      }) {
     return CustomTransitionPage<void>(
       key: key,
       child: child,

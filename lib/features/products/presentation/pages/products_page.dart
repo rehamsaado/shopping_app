@@ -1,12 +1,11 @@
-// lib/features/products/presentation/pages/products_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shopping_app/core/constants/user_session.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/widgets/app_drawer.dart'; // استدعاء الـ Drawer الجديد
+import '../../../../core/widgets/app_drawer.dart';
 import '../../../carts/presentation/bloc/carts_list/carts_list_bloc.dart';
 import '../../../carts/presentation/bloc/carts_list/carts_list_event.dart';
 import '../../../carts/presentation/widgets/add_custom_bottom_sheet.dart';
@@ -41,6 +40,7 @@ class _ProductsPageState extends State<ProductsPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final effectiveUserId = sl<UserSession>().getUserId() ?? '1';
 
     return Scaffold(
       appBar: AppBar(
@@ -54,7 +54,7 @@ class _ProductsPageState extends State<ProductsPage> {
           ),
         ],
       ),
-      drawer: const AppDrawer(), // ربط الـ Drawer هنا بنجاح
+      drawer: AppDrawer(userId: effectiveUserId),
       body: BlocListener<ProductsBloc, ProductsState>(
         listener: (context, state) {
           if (state is CategoriesLoaded) {
@@ -218,10 +218,13 @@ class _ProductsPageState extends State<ProductsPage> {
                                 context: context,
                                 isScrollControlled: true,
                                 builder: (modalContext) => BlocProvider(
-                                  create: (context) => sl<CartsListBloc>()..add(const LoadCartsListEvent()),
-                                  child: AddCustomCartBottomSheet(productId: product.id,          // رقم المنتج الحقيقي من الـ API
-                                    productPrice: product.price,    // السعر الحقيقي
-                                    productName: product.title,),
+                                  create: (context) => sl<CartsListBloc>()
+                                    ..add(const LoadCartsListEvent()),
+                                  child: AddCustomCartBottomSheet(
+                                    productId: product.id,
+                                    productPrice: product.price,
+                                    productName: product.title,
+                                  ),
                                 ),
                               );
                             },

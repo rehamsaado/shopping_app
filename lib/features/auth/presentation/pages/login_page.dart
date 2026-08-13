@@ -18,11 +18,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-
-
   bool _isPasswordHidden = true;
 
   @override
@@ -54,11 +51,11 @@ class _LoginPageState extends State<LoginPage> {
                       color: AppColors.primary,
                     ),
                     const SizedBox(height: 32),
-
                     Text(
                       context.tr('login_title'),
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
                       ),
@@ -67,13 +64,11 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       context.tr('welcome_back'),
                       textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: AppColors.gray500),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.gray500,
+                      ),
                     ),
                     const SizedBox(height: 48),
-
                     TextFormField(
                       controller: _usernameController,
                       keyboardType: TextInputType.name,
@@ -89,8 +84,6 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
                     const SizedBox(height: 20),
-
-                    // حقل كلمة المرور مع زر الإظهار/الإخفاء
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _isPasswordHidden,
@@ -122,7 +115,6 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
                     const SizedBox(height: 32),
-
                     BlocConsumer<AuthBloc, AuthState>(
                       listener: (context, state) {
                         if (state is AuthSuccess) {
@@ -131,7 +123,9 @@ class _LoginPageState extends State<LoginPage> {
                               content: Text(context.tr('login_success')),
                             ),
                           );
-                          context.go(AppRoutes.products);
+
+                          // الانتقال الآمن باستخدام الـ userId القادم حصراً من الـ State والدلسة الديناميكية
+                          context.go(AppRoutes.products, extra: state.user);
                         } else if (state is AuthFailure) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -151,10 +145,10 @@ class _LoginPageState extends State<LoginPage> {
                               if (_formKey.currentState!.validate()) {
                                 context.read<AuthBloc>().add(
                                   LoginSubmitted(
-                                    username:
-                                    _usernameController.text.trim(),
-                                    password:
-                                    _passwordController.text.trim(),
+                                    username: _usernameController.text
+                                        .trim(),
+                                    password: _passwordController.text
+                                        .trim(),
                                   ),
                                 );
                               }
@@ -179,9 +173,7 @@ class _LoginPageState extends State<LoginPage> {
                         );
                       },
                     ),
-
                     const SizedBox(height: 24),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
